@@ -1,4 +1,4 @@
-# xmpp stress tool
+# kisa -- xmpp stress tool
 
 ## Dependens
 
@@ -23,3 +23,7 @@ Basic help:
 
 Supported modes: *chat*. Additional modes coming soon.  
 You can set default config by rename `config.py.example` to `config.py`.
+
+## License
+
+kisa licensed under a Public Domain license.
