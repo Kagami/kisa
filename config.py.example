@@ -5,5 +5,5 @@
 verbose = False
 mode = "chat"
 bot_count = 200
-jid = u"jid@jabber.ru"
+jid = u"username@jabber.org"
 text = u"""日一国会人年大十二本中長出三同時政事自行社見月分議後前民生連五発間対上部東者党地合市業内相方四定今回新場金員九入選立>開手米力学問高代明実円関決子動京全目表戦経通外最言氏現理調体化田当八"""
