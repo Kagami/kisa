@@ -1,6 +1,6 @@
 # kisa -- xmpp stress tool
 
-## Dependens
+## Dependencies
 
 1. python 2.6+
 2. twisted 10.0+
@@ -21,7 +21,7 @@
 Basic help:
 `/path/to/kisa.py --help`
 
-Supported modes: *chat*. Additional modes coming soon.  
+Supported modes: *chat*.  
 You can set default config by rename `config.py.example` to `config.py`.
 
 ## License
