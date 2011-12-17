@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-__license__ = "Public Domain"
-__version__ = "0.0.1"
-
 import sys
 import os.path
 try:
@@ -25,7 +22,7 @@ import xmpp
 
 
 program_name = os.path.basename(__file__)
-parser = optparse.OptionParser(version=__version__)
+parser = optparse.OptionParser()
 try:
     import config
 except ImportError:
