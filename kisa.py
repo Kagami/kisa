@@ -31,7 +31,7 @@ else:
     parser.set_defaults(
         verbose=config.verbose, mode=config.mode, bot_count=config.bot_count,
         jid=config.jid.encode("utf-8"), text=config.text.encode("utf-8"),
-        mps=config.mps)
+        interval=config.interval)
 parser.add_option("-v", "--verbose", action="store_true",
                   help="print additional debug info")
 parser.add_option("-q", "--quiet", dest="verbose", action="store_false",
@@ -41,8 +41,8 @@ parser.add_option("-m", "--mode", choices=("chat",),
 group = optparse.OptionGroup(parser, "chat mode options")
 group.add_option("-c", "--bot-count", type="int",
                  help="number of bots running in parallel")
-group.add_option("--mps", type="float",
-                 help="messages per second")
+group.add_option("-n", "--interval", type="float",
+                 help="number of seconds between message sends")
 group.add_option("-j", "--jid", help="destination jid")
 group.add_option("-t", "--text")
 parser.add_option_group(group)
@@ -68,7 +68,7 @@ def start_chat_mode():
         xmpp.ChatModeBot(
             jid, password,
             options.jid.decode("utf-8"), options.text.decode("utf-8"),
-            options.mps, options.verbose)
+            options.interval, options.verbose)
 
 
 if options.mode == "chat":
