@@ -13,12 +13,13 @@ def log_data_out(buf):
 
 class ChatModeBot(object):
 
-    def __init__(self, bare_jid, password, jid_to, text, verbose=False):
+    def __init__(self, bare_jid, password, jid_to, text, mps, verbose=False):
         self._jid_to = jid_to
         self._msg = domish.Element((None, "message"))
         self._msg["to"] = jid_to
         self._msg["type"] = "chat"
         self._msg.addElement("body", content=text)
+        self._mps = mps
         self._verbose = verbose
         jid_obj = jid.JID(bare_jid + "/nyaknyak")
         self._factory = client.XMPPClientFactory(jid_obj, password)
@@ -37,4 +38,4 @@ class ChatModeBot(object):
         prs["type"] = "subscribe"
         xmlstream.send(prs)
         # Message send loop.
-        task.LoopingCall(xmlstream.send, self._msg).start(0.01)
+        task.LoopingCall(xmlstream.send, self._msg).start(self._mps)
