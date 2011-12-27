@@ -6,7 +6,7 @@
 2. twisted 10.0+
 3. pyOpenSSL 0.10+
 
-## Install pre-requirements
+## Install dependencies
 
 * Linux (Debian example)
     1. `sudo apt-get install python`
