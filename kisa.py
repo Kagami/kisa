@@ -26,18 +26,26 @@ parser = optparse.OptionParser()
 try:
     import config
 except ImportError:
-    pass
-else:
-    parser.set_defaults(
-        verbose=config.verbose, mode=config.mode, bot_count=config.bot_count,
-        jid=config.jid.encode("utf-8"), text=config.text.encode("utf-8"),
-        interval=config.interval)
+    class DummyConfig(object): pass
+    config = DummyConfig()
+# Set up defaults
+if not hasattr(config, "verbose"): config.verbose = False
+parser.set_defaults(verbose=config.verbose)
+if not hasattr(config, "bot_count"): config.bot_count = 300
+parser.set_defaults(bot_count=config.bot_count)
+if not hasattr(config, "interval"): config.interval = 0.01
+parser.set_defaults(interval=config.interval)
+if hasattr(config, "mode"): parser.set_defaults(mode=config.mode)
+if hasattr(config, "jid"): parser.set_defaults(jid=config.jid.encode("utf-8"))
+if hasattr(config, "text"):
+    parser.set_defaults(text=config.text.encode("utf-8"))
+# Set up options
 parser.add_option("-v", "--verbose", action="store_true",
                   help="print additional debug info")
 parser.add_option("-q", "--quiet", dest="verbose", action="store_false",
                   help="be quiet")
 parser.add_option("-m", "--mode", choices=("chat",),
-                  help="set mode: chat")
+                  help="set mode; supported modes: chat")
 group = optparse.OptionGroup(parser, "chat mode options")
 group.add_option("-c", "--bot-count", type="int",
                  help="number of bots running in parallel")
@@ -46,10 +54,18 @@ group.add_option("-n", "--interval", type="float",
 group.add_option("-j", "--jid", help="destination jid")
 group.add_option("-t", "--text")
 parser.add_option_group(group)
+# Parse args
 (options, args) = parser.parse_args()
 if args:
     parser.error("unknown options; see `%s --help' "
                  "for details" % program_name)
+if options.mode is None:
+    parser.error("you should set up working mode (--mode)")
+if options.mode == "chat":
+    if options.jid is None:
+        parser.error("you should set up jid (--jid)")
+    if options.text is None:
+        parser.error("you should set up text (--text)")
 if options.verbose:
     log.startLogging(sys.stdout)
 
