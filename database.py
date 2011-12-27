@@ -12,19 +12,16 @@ class DB(object):
             "sqlite3", database=db_path, timeout=30,
             # See http://twistedmatrix.com/trac/ticket/3629
             check_same_thread=False)
-        self._init_db()
 
+    @defer.inlineCallbacks
     def _init_db(self):
-        def _init(cur):
-            cur.execute("BEGIN EXCLUSIVE TRANSACTION")
-            try:
-                cur.execute("""CREATE TABLE accounts
-                                   (jid TEXT PRIMARY KEY,
-                                    password TEXT,
-                                    in_use INTEGER)""")
-            except sqlite3.OperationalError:
-                pass
-        return self._db.runInteraction(_init)
+        try:
+            yield self._db.runOperation("""CREATE TABLE accounts
+                                            (jid TEXT PRIMARY KEY,
+                                             password TEXT,
+                                             in_use INTEGER)""")
+        except sqlite3.OperationalError:
+            pass
 
     def add_account(self, jid, password):
         return self._db.runOperation(
@@ -32,6 +29,7 @@ class DB(object):
 
     def get_account(self):
         def _get_account(cur):
+            cur.execute("PRAGMA synchronous = OFF")
             cur.execute("BEGIN EXCLUSIVE TRANSACTION")
             acc = cur.execute("""SELECT jid, password FROM accounts
                                  WHERE in_use=0 LIMIT 1""").fetchone()
@@ -41,11 +39,20 @@ class DB(object):
                 return acc
         return self._db.runInteraction(_get_account)
 
-    def get_all_accounts(self):
-        return self._db.runQuery("SELECT jid, password FROM accounts")
-
     def free_jid(self, jid):
         return self._db.runOperation("""UPDATE accounts SET in_use=0
                                         WHERE jid=?""", (jid,))
 
-db = DB()
+    def del_account(self, jid):
+        return self._db.runOperation("""DELETE FROM accounts
+                                        WHERE jid=?""", (jid,))
+
+    def get_all_accounts(self):
+        return self._db.runQuery("SELECT jid, password FROM accounts")
+
+
+@defer.inlineCallbacks
+def get_db():
+    db = DB()
+    yield db._init_db()
+    defer.returnValue(db)

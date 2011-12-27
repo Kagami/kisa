@@ -17,7 +17,7 @@ try:
 except:
     pass
 from twisted.internet import defer, reactor
-from database import db
+from database import get_db
 import xmpp
 
 
@@ -28,7 +28,7 @@ try:
 except ImportError:
     class DummyConfig(object): pass
     config = DummyConfig()
-# Set up defaults
+# Set up defaults.
 if not hasattr(config, "verbose"): config.verbose = False
 parser.set_defaults(verbose=config.verbose)
 if not hasattr(config, "bot_count"): config.bot_count = 300
@@ -39,7 +39,7 @@ if hasattr(config, "mode"): parser.set_defaults(mode=config.mode)
 if hasattr(config, "jid"): parser.set_defaults(jid=config.jid.encode("utf-8"))
 if hasattr(config, "text"):
     parser.set_defaults(text=config.text.encode("utf-8"))
-# Set up options
+# Set up options.
 parser.add_option("-v", "--verbose", action="store_true",
                   help="print additional debug info")
 parser.add_option("-q", "--quiet", dest="verbose", action="store_false",
@@ -54,7 +54,7 @@ group.add_option("-n", "--interval", type="float",
 group.add_option("-j", "--jid", help="destination jid")
 group.add_option("-t", "--text")
 parser.add_option_group(group)
-# Parse args
+# Parse args.
 (options, args) = parser.parse_args()
 if args:
     parser.error("unknown options; see `%s --help' "
@@ -72,6 +72,7 @@ if options.verbose:
 
 @defer.inlineCallbacks
 def start_chat_mode():
+    db = yield get_db()
     accounts = yield db.get_all_accounts()
     if not accounts:
         print "No accounts in the database, exiting."
@@ -84,7 +85,7 @@ def start_chat_mode():
         xmpp.ChatModeBot(
             jid, password,
             options.jid.decode("utf-8"), options.text.decode("utf-8"),
-            options.interval, options.verbose)
+            options.interval, db, options.verbose)
 
 
 if options.mode == "chat":
