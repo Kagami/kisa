@@ -8,6 +8,7 @@ class RegisterBot(object):
 
     def __init__(self, verbose=0):
         self._verbose = verbose
+        self._xs = None
         self._deferred = defer.Deferred()
 
     def register_account(self, server):
@@ -32,6 +33,7 @@ class RegisterBot(object):
         return self._deferred
 
     def _connected(self, xs):
+        self._xs = xs
         if self._verbose > 1:
             xs.rawDataInFn = utils.log_data_in
             xs.rawDataOutFn = utils.log_data_out
@@ -39,6 +41,8 @@ class RegisterBot(object):
     def _failed(self, arg1, arg2=None):
         if self._deferred.called:
             return
+        if self._xs is not None and self._xs.connected:
+            self._xs.transport.loseConnection()
         failure = arg1 if arg2 is None else arg2
         if type(failure) is int:
             error = failure
