@@ -21,7 +21,6 @@
 Basic help:
 `/path/to/kisa.py --help`
 
-Supported modes: *chat*.  
 You can set default config by rename `config.py.example` to `config.py`.
 
 ## License

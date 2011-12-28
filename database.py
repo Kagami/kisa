@@ -17,35 +17,44 @@ class DB(object):
     def _init_db(self):
         try:
             yield self._db.runOperation("""CREATE TABLE accounts
-                                            (jid TEXT PRIMARY KEY,
-                                             password TEXT,
-                                             in_use INTEGER)""")
+                                           (jid TEXT PRIMARY KEY,
+                                            password TEXT,
+                                            in_use INTEGER)""")
         except sqlite3.OperationalError:
             pass
 
     def add_account(self, jid, password):
-        return self._db.runOperation(
-            "INSERT INTO accounts VALUES (?, ?, ?)", (jid, password, 0))
+        def _add_account(cur):
+            cur.execute("PRAGMA synchronous=OFF")
+            cur.execute("""INSERT INTO accounts
+                           VALUES (?, ?, ?)""", (jid, password, 0))
+        return self._db.runInteraction(_add_account)
 
     def get_account(self):
         def _get_account(cur):
-            cur.execute("PRAGMA synchronous = OFF")
+            cur.execute("PRAGMA synchronous=OFF")
             cur.execute("BEGIN EXCLUSIVE TRANSACTION")
             acc = cur.execute("""SELECT jid, password FROM accounts
                                  WHERE in_use=0 LIMIT 1""").fetchone()
             if acc:
-                cur.execute(
-                    "UPDATE accounts SET in_use=1 WHERE jid=?", (acc[0],))
+                cur.execute("""UPDATE accounts SET in_use=1
+                               WHERE jid=?""", (acc[0],))
                 return acc
         return self._db.runInteraction(_get_account)
 
     def free_jid(self, jid):
-        return self._db.runOperation("""UPDATE accounts SET in_use=0
-                                        WHERE jid=?""", (jid,))
+        def _free_jid(cur):
+            cur.execute("PRAGMA synchronous=OFF")
+            cur.execute("""UPDATE accounts SET in_use=0
+                           WHERE jid=?""", (jid,))
+        return self._db.runInteraction(_free_jid)
 
     def del_account(self, jid):
-        return self._db.runOperation("""DELETE FROM accounts
-                                        WHERE jid=?""", (jid,))
+        def _del_account(cur):
+            cur.execute("PRAGMA synchronous=OFF")
+            cur.execute("""DELETE FROM accounts
+                           WHERE jid=?""", (jid,))
+        return self._db.runInteraction(_del_account)
 
     def get_all_accounts(self):
         return self._db.runQuery("SELECT jid, password FROM accounts")

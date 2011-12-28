@@ -2,7 +2,7 @@
 
 # You can set default settings if your wish.
 # Don't forget to rename this file to config.py
-verbose = False
+verbose = 0
 bot_count = 300
 interval = 0.01
 mode = "chat"
